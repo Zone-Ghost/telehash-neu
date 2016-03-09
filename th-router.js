@@ -62,6 +62,21 @@ var loadKeyData = function(caller, _path, callback) {
 }
 
 
+var loadAuthorizedHashnames = function(_path, callback) {
+  var return_value = {};
+  if (fs.existsSync(_path) && fs.lstatSync(_path).isFile()) {
+    var return_value = JSON.parse(fs.readFileSync(_path));
+    console.log('Loaded authorized IDs.');
+  }
+  else {
+  }
+
+  if (callback) {
+    callback(false, return_value);
+  }
+}
+
+
 // EXPOSED OBJECT / CONSTRUCTOR
 function mTransport(options) {
   // set scope for private methods
@@ -213,17 +228,16 @@ function mTransportFactory() {
     if (router_mesh && !d_state) {
       // Router is running and ought not be.
       router_mesh.close();
-      me.send('listening', false);
-      me.send('localAddress', '');
+      console.log('TelehashFactory is listening on ' + router_id.hashname);
       router_mesh = null;
     }
     else if (d_state) {
       // Start the server listening.
       if (!router_mesh) {
-        loadKeyData(me, _keyfile, me.startRouter);
+        loadKeyData(me, _keyfile, startRouter);
       }
       else {
-        console.log('TelehashFactory is already listening on ' + me.router_id.hashname);
+        console.log('TelehashFactory is already listening on ' + router_id.hashname);
       }
     }
     else {
