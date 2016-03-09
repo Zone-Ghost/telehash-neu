@@ -160,7 +160,7 @@ function mTransportFactory() {
 
 
   // This exec's when all transports have entered discovery mode.
-  this.discoveryState = function(_disc_stu) {
+  var discoveryState = function(_disc_stu) {
     discovery_state = (_disc_stu) ? true : false;  // Boolean normallization.
     console.log('TelehashFactory discovery callback: ' + discovery_state);
     that.send('discovering', discovery_state);
@@ -170,7 +170,7 @@ function mTransportFactory() {
   // Call with a boolean argument and optional timeout value to make the router mesh
   //   discoverable or not. If a non-zero timeout value is provided, the mesh will
   //   only be discoverable for that duration.
-  this.discover = function(_discoverable, _discvr_timeout) {
+  var discover = function(_discoverable, _discvr_timeout) {
     if (discovery_state ^ _discoverable) {
       if (_discoverable) {
         router_mesh.accept = function(from) {
@@ -195,7 +195,7 @@ function mTransportFactory() {
     }
   }
 
-  this.startRouter = function(err, id_data) {
+  var startRouter = function(err, id_data) {
     router_id = id_data;
     th.mesh(
       {
@@ -274,8 +274,10 @@ function mTransportFactory() {
     else {
       console.log('Unspecified address.');
     }
-  },
+  }
 
+  //return this;
+}
 
 
 module.exports = {

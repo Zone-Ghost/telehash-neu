@@ -12,3 +12,4 @@ node_modules
 ./doc/
 ./logs/
 .directory
+./npm-debug.log
