@@ -2,7 +2,7 @@
 
 var inherits = require('util').inherits;
 var fs = require("fs");
-var th = require("telehash");
+const th = require("telehash");
 
 //delete th.extensions.udp4;
 //delete th.extensions.tcp4;
@@ -280,8 +280,25 @@ function mTransportFactory() {
 }
 
 
-module.exports = {
-  init: function() {
+module.exports = function () {
+  init = function() {
     return new mTransportFactory();
   }
-};
+}();
+
+
+//module.exports = function nameOfEndpoint(someProps) {
+//	let X = "some private/internal variable";
+//	//logic
+//
+//	return {
+//		assignX: (asdf) => {
+//			X = asdf;
+//			return true;
+//		},
+//		readX: () => {
+//			return X;
+//		}
+//	}
+//
+//}

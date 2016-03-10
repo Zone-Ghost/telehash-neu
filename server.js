@@ -1,1 +1,1 @@
-var routeFac = require('./th-router.js').init();
+var routeFac = require('./th-router.js');
