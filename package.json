@@ -1,0 +1,22 @@
+{
+  "name": "telehash-neu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zone-Ghost/telehash-neu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zone-Ghost/telehash-neu/issues"
+  },
+  "homepage": "https://github.com/Zone-Ghost/telehash-neu#readme",
+  "dependencies": {
+    "telehash": "^0.4.16"
+  }
+}
