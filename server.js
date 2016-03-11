@@ -12,14 +12,17 @@ const cbFunction = (err, thLib) => {
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
     thLib.discoverMode(true);
-    const _stream = thLib.links.router.stream();
-    _stream.on('data', (_data) => { console.log(`From counterparty: ${_data}`); });
-    setInterval(
-      function () {
-        _stream.write('SERVER ---> ROUTER');
-      }, 1000
+    thLib.events.on('routerStream',
+      (_obj) => {
+        console.log('Got a routerStream callback.');
+        setInterval(
+          () => {
+            _obj.stream.write('SERVER ---> ROUTER');
+          }, 1000
+        );
+        _obj.stream.on('data', (_data) => { console.log(`From counterparty: ${_data}`); });
+      }
     );
-    thLib.pingAll();
     console.log('Got a stream.');
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');

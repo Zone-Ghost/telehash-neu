@@ -16,6 +16,11 @@ const cbFunction = (err, thLib) => {
     thLib.events.on('registryStream',
       (_obj) => {
         console.log('Got a registryStream callback.');
+        setInterval(
+          () => {
+            _obj.stream.write('SERVER ---> ROUTER');
+          }, 1000
+        );
         _obj.stream.on('data', (_data) => { console.log(`From counterparty: ${_data}`); });
       }
     );
