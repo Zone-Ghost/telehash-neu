@@ -11,9 +11,15 @@ const cbFunction = (err, thLib) => {
     console.log(err);
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
-    thLib.discoverMode(true);
+    //thLib.discoverMode(true);
     const _stream = thLib.links.router.stream();
-    console.log(inspect(_stream, 3));
+    setInterval(
+      function () {
+        _stream.write('Data SERVER ---> ROUTER');
+      }, 1000
+    );
+    thLib.pingAll();
+    console.log('Got a stream.');
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }

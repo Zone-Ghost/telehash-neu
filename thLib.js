@@ -115,6 +115,7 @@ function telehashMesh(_config, callback) {
         toString: () => inspect(config, true, 6),
         pingAll: () => {
           Object.keys(linkRefs).forEach((key) => {
+            console.log(`Ping ${key}`);
             linkRefs[key].ping((_err, lat) => {
               if (_err) {
                 console.log(`Ping ${key} : No Response`);
