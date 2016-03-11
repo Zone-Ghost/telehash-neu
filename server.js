@@ -11,11 +11,12 @@ const cbFunction = (err, thLib) => {
     console.log(err);
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
-    //thLib.discoverMode(true);
+    thLib.discoverMode(true);
     const _stream = thLib.links.router.stream();
+    _stream.on('data', (_data) => { console.log(`From counterparty: ${_data}`); });
     setInterval(
       function () {
-        _stream.write('Data SERVER ---> ROUTER');
+        _stream.write('SERVER ---> ROUTER');
       }, 1000
     );
     thLib.pingAll();
