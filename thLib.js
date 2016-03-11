@@ -36,7 +36,7 @@ const defRouter = {
   hashname: 'kw4qurandncxwokuidfx6nkewvqivqwbab6fzsv4q7t5gjupyc2a',
 };
 
-function telehashMesh(_config, _callback) {
+function telehashMesh(_config, callback) {
   const config = {
     endpoint_id: null,
     authorized_ids: [],
@@ -49,52 +49,46 @@ function telehashMesh(_config, _callback) {
   const linkRefs = {};
   const emitter = new Emitter();
   let timer = null;
-  let callback = () => {};
-
-  // Option merging and optional generation
-  if (_callback) {
-    callback = _callback;
-  }
 
   console.log('derp');
 
   const build = () => {
-    mesh = th.mesh({ id: config.endpoint_id }, (err, cb) => {
+    th.mesh({ id: config.endpoint_id }, (err, retMesh) => {
       if (err) {
         callback(new Error(`Couldn\'t generate mesh: ${err}`));
         return;
       }
-
       linkRefs.router = mesh.link(config.router_id);
       linkRefs.registry = mesh.link(config.registry_id);
       config.authorized_ids.forEach((v) => {
         linkRefs[v.hashname] = this.link(v);
       });
-      callback(cb);
+
+      mesh = retMesh;
+      mesh.stream((link, args, cbAccept) => {
+        if (link.hashname === config.registry_id.hashname) {
+          // this is the trusted registry
+          emitter.emit('registryStream', {
+            link: link.hashname,
+            stream: cbAccept(),
+          });
+        } else
+        if (link.hashname === config.router_id.hashname) {
+          // this is the non-trusted router
+          emitter.emit('routerStream', {
+            link: link.hashname,
+            stream: cbAccept(),
+          });
+        } else {
+          emitter.emit('securedStream', {
+            link: link.hashname,
+            stream: cbAccept(),
+          });
+        }
+      });
     });
 
-    mesh.stream((link, args, cbAccept) => {
-      if (link.hashname === config.registry_id.hashname) {
-        // this is the trusted registry
-        emitter.emit('registryStream', {
-          link: link.hashname,
-          stream: cbAccept(),
-        });
-      } else
-      if (link.hashname === config.router_id.hashname) {
-        // this is the non-trusted router
-        emitter.emit('routerStream', {
-          link: link.hashname,
-          stream: cbAccept(),
-        });
-      } else {
-        emitter.emit('securedStream', {
-          link: link.hashname,
-          stream: cbAccept(),
-        });
-      }
-    });
-    return {
+    callback(false, {
       saveAsJSON: (_path) => {
         fs.writeFile(_path, JSON.stringify(config));
       },
@@ -132,25 +126,24 @@ function telehashMesh(_config, _callback) {
           });
         });
       },
-    };
+    });
   };
-
-  // construction
+  // This constructs everything...
   if (typeof _config === 'object') Object.assign(config, _config);
   if (config.endpoint_id === null) {
     th.generate((err, endpoint) => {
       if (err) {
         callback(new Error('Couldn\'t generate endpoint'));
-        return false;
+        return;
       }
       config.endpoint_id = endpoint;
-      return build();
+      build();
+      return;
     });
   } else {
-    return build();
+    build();
+    return;
   }
-  callback(new Error('Shouldn\'t return here.'));
-  return false;
 }
 
 module.exports = {
