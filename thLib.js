@@ -50,21 +50,20 @@ function telehashMesh(_config, callback) {
   const emitter = new Emitter();
   let timer = null;
 
-  console.log('derp');
-
   const build = () => {
     th.mesh({ id: config.endpoint_id }, (err, retMesh) => {
       if (err) {
         callback(new Error(`Couldn\'t generate mesh: ${err}`));
         return;
       }
+      mesh = retMesh;
+
       linkRefs.router = mesh.link(config.router_id);
       linkRefs.registry = mesh.link(config.registry_id);
       config.authorized_ids.forEach((v) => {
         linkRefs[v.hashname] = this.link(v);
       });
 
-      mesh = retMesh;
       mesh.stream((link, args, cbAccept) => {
         if (link.hashname === config.registry_id.hashname) {
           // this is the trusted registry
