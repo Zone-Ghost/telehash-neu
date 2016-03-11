@@ -65,23 +65,24 @@ function telehashMesh(_config, callback) {
       });
 
       mesh.stream((link, args, cbAccept) => {
+        console.log('LINE 68: ');
         if (link.hashname === config.registry_id.hashname) {
           // this is the trusted registry
           emitter.emit('registryStream', {
             link: link.hashname,
-            stream: cbAccept(),
+            stream: cbAccept,
           });
         } else
         if (link.hashname === config.router_id.hashname) {
           // this is the non-trusted router
           emitter.emit('routerStream', {
             link: link.hashname,
-            stream: cbAccept(),
+            stream: cbAccept,
           });
         } else {
           emitter.emit('securedStream', {
             link: link.hashname,
-            stream: cbAccept(),
+            stream: cbAccept,
           });
         }
       });

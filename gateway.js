@@ -7,25 +7,28 @@ const neuMesh = require('./thLib.js');
 // This might be a user's handset or a home gateway.
 const myIdentity = require('./ROUTER.json');
 
+const streamActor = (r_stream) => {
+  r_stream.on('readable', (_data) => { console.log(`READABLE From counterparty: ${_data}`); });
+  r_stream.on('data', (_data) => { console.log(`DATA From counterparty: ${_data}`); });
+  setInterval(
+    () => {
+      r_stream.write('ROUTER ---> SERVER');
+    }, 1000
+  );
+};
+
+
 const cbFunction = (err, thLib) => {
   if (err) {
     console.log(err);
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
     thLib.discoverMode(true);
-    let r_stream = thLib.links.registry.stream();
-    r_stream.on('readable', (_data) => { console.log(`From counterparty: ${_data}`); });
-    thLib.events.on('registryStream',
-      (_obj) => {
-        console.log('Got a registryStream callback.');
-        setInterval(
-          () => {
-            _obj.stream.write('ROUTER ---> SERVER');
-          }, 1000
-        );
-        _obj.stream.on('readable', (_data) => { console.log(`From counterparty: ${_data}`); });
-      }
-    );
+
+    thLib.events.on('registryStream', () => {
+      console.log('Got a registryStream callback.');
+      let r_stream = _obj.stream();
+    });
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
