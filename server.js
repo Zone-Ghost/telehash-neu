@@ -12,6 +12,8 @@ const cbFunction = (err, thLib) => {
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
     thLib.discoverMode(true);
+    const _stream = thLib.links.router.stream();
+    console.log(inspect(_stream, 3));
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }

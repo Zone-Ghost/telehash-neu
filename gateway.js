@@ -7,6 +7,18 @@ const neuMesh = require('./thLib.js');
 // This might be a user's handset or a home gateway.
 const myIdentity = require('./ROUTER.json');
 
-const testMesh = neuMesh.initEndpoint({ endpoint_id: myIdentity });
+const cbFunction = (err, thLib) => {
+  if (err) {
+    console.log(err);
+  } else if (thLib) {
+    console.log('About to make this instance discoverable.');
+    thLib.discoverMode(true);
+    thLib.events.on('registryStream', () => { console.log('Got a registryStream callback.'); });
+  } else {
+    console.log('No error reported, but no thLib either! Gripe. Explode.');
+  }
+};
+
+const testMesh = neuMesh.initEndpoint({ endpoint_id: myIdentity }, cbFunction);
 
 console.log(inspect(testMesh, true, 8));
