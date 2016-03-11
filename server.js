@@ -1,12 +1,11 @@
-var inspect = require('util').inspect;
+'use strict';
 
-var neuMesh = require('./thLib.js');
+const inspect = require('util').inspect;
+const neuMesh = require('./thLib.js');
 
 // This file represents the telehash instance running on the device.
-var my_identity = require('./REGISTRY.json');
+const myIdentity = require('./REGISTRY.json');
 
+const testMesh = neuMesh.initEndpoint({ endpoint_id: myIdentity });
 
-var testMesh = neuMesh.initEndpoint({}, (err, wat) => {
-  console.log(err ? err : wat)
-  console.log(inspect(testMesh, true, 8));
-});
+console.log(inspect(testMesh, true, 8));
