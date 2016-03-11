@@ -13,18 +13,19 @@ const cbFunction = (err, thLib) => {
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
     thLib.discoverMode(true);
+    let r_stream = thLib.links.registry.stream();
+    r_stream.on('readable', (_data) => { console.log(`From counterparty: ${_data}`); });
     thLib.events.on('registryStream',
       (_obj) => {
         console.log('Got a registryStream callback.');
         setInterval(
           () => {
-            _obj.stream.write('SERVER ---> ROUTER');
+            _obj.stream.write('ROUTER ---> SERVER');
           }, 1000
         );
-        _obj.stream.on('data', (_data) => { console.log(`From counterparty: ${_data}`); });
+        _obj.stream.on('readable', (_data) => { console.log(`From counterparty: ${_data}`); });
       }
     );
-
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
