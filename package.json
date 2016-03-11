@@ -18,5 +18,10 @@
   "homepage": "https://github.com/Zone-Ghost/telehash-neu#readme",
   "dependencies": {
     "telehash": "^0.4.16"
+  },
+  "devDependencies": {
+    "eslint": "^2.3.0",
+    "eslint-config-airbnb": "^6.1.0",
+    "eslint-plugin-react": "^4.2.1"
   }
 }
