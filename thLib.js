@@ -86,46 +86,46 @@ function telehashMesh(_config, callback) {
           });
         }
       });
-    });
 
-    callback(false, {
-      saveAsJSON: (_path) => {
-        fs.writeFile(_path, JSON.stringify(config));
-      },
-      addLink: (_endpoint) => {
-        config.authorized_ids.push(_endpoint);
-        linkRefs[_endpoint.hashname] = mesh.link(_endpoint);
-      },
-      discoverMode: (bool, _timer) => {
-        if (timer) clearTimeout(timer);
-        if (bool === false) {
-          config.discovery = false;
-          mesh.discover(false);
-        } else {
-          config.discovery = true;
-          mesh.discover(true);
-          if (_timer) {
-            timer = setTimeout(() => {
-              config.discovery = false;
-              mesh.discover(false);
-            }, _timer);
-          }
-        }
-      },
-      links: linkRefs,
-      events: emitter,
-      toString: () => inspect(config, true, 6),
-      pingAll: () => {
-        Object.keys(linkRefs).forEach((key) => {
-          linkRefs[key].ping((err, lat) => {
-            if (err) {
-              console.log(`Ping ${key} : No Response`);
-              return;
+      callback(false, {
+        saveAsJSON: (_path) => {
+          fs.writeFile(_path, JSON.stringify(config));
+        },
+        addLink: (_endpoint) => {
+          config.authorized_ids.push(_endpoint);
+          linkRefs[_endpoint.hashname] = mesh.link(_endpoint);
+        },
+        discoverMode: (bool, _timer) => {
+          if (timer) clearTimeout(timer);
+          if (bool === false) {
+            config.discovery = false;
+            mesh.discover(false);
+          } else {
+            config.discovery = true;
+            mesh.discover(true);
+            if (_timer) {
+              timer = setTimeout(() => {
+                config.discovery = false;
+                mesh.discover(false);
+              }, _timer);
             }
-            console.log(`Ping ${key} : ${lat}ms`);
+          }
+        },
+        links: linkRefs,
+        events: emitter,
+        toString: () => inspect(config, true, 6),
+        pingAll: () => {
+          Object.keys(linkRefs).forEach((key) => {
+            linkRefs[key].ping((_err, lat) => {
+              if (_err) {
+                console.log(`Ping ${key} : No Response`);
+                return;
+              }
+              console.log(`Ping ${key} : ${lat}ms`);
+            });
           });
-        });
-      },
+        },
+      });
     });
   };
   // This constructs everything...
