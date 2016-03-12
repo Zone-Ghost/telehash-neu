@@ -6,11 +6,14 @@ const neuMesh = require('./thLib.js');
 // This might be a user's handset or a home gateway.
 const myIdentity = require('./ROUTER.json');
 
-const streamActor = (rStream) => {
+const streamActor = (aStream) => {
+  const rStream = aStream();
   console.log('stream actor working');
   rStream.on('readable', (_data) => { console.log(`READABLE From counterparty: ${_data}`); });
-  rStream.on('data', (_data) => { console.log(`DATA From counterparty: ${_data}`); });
-  rStream.write("HELLO SERVER DOG.  THIS IS GATEWAY.")
+  rStream.on('data', (_data) => {
+    console.log(`DATA From counterparty: ${_data}`);
+    rStream.write('HELLO SERVER DOG.  THIS IS GATEWAY.');
+  });
 //  setInterval(
 //    () => {
 //      r_stream.write('ROUTER ---> SERVER');
@@ -30,9 +33,6 @@ const cbFunction = (err, thLib) => {
       console.log('Got a registryStream callback.');
       streamActor(obj.stream);
     });
-
-    const test = thLib.links.registry.stream();
-    test.write('GATEWAY TO SERVER, COME IN.');
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }

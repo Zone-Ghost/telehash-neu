@@ -98,24 +98,24 @@ function telehashMesh(_config, callback) {
       //   }
       // };
 
-      mesh.stream((link, args, cbAccept) => {
-        if (link.hashname === config.registry_id.hashname) {
+      mesh.stream((from, args, accept) => {
+        if (from.hashname === config.registry_id.hashname) {
           // this is the trusted registry
           emitter.emit('registryStream', {
-            link: link.hashname,
-            stream: cbAccept(),
+            link: from.hashname,
+            stream: accept,
           });
         } else
-        if (link.hashname === config.router_id.hashname) {
+        if (from.hashname === config.router_id.hashname) {
           // this is the non-trusted router
           emitter.emit('routerStream', {
-            link: link.hashname,
-            stream: cbAccept(),
+            link: from.hashname,
+            stream: accept,
           });
         } else {
           emitter.emit('securedStream', {
-            link: link.hashname,
-            stream: cbAccept(),
+            link: from.hashname,
+            stream: accept,
           });
         }
       });
