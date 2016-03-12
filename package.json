@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deb-server": "DEBUG=Link,Mesh node server.js",
+    "deb-router": "DEBUG=Link,Mesh node gateway.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "homepage": "https://github.com/Zone-Ghost/telehash-neu#readme",
   "dependencies": {
+    "hashname": "^0.3.1",
     "telehash": "^0.4.16"
   },
   "devDependencies": {

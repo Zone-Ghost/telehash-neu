@@ -4,6 +4,7 @@ const fs = require('fs');
 const th = require('telehash');
 const inspect = require('util').inspect;
 const EventEmitter = require('events');
+const hn = require('hashname');
 
 class Emitter extends EventEmitter {}
 
@@ -56,37 +57,70 @@ function telehashMesh(_config, callback) {
         callback(new Error(`Couldn\'t generate mesh: ${err}`));
         return;
       }
-      mesh = retMesh;
 
+      mesh = retMesh;
       linkRefs.router = mesh.link(config.router_id);
+      if (linkRefs.router) {
+        linkRefs.router.status((_err) => {
+          if (_err) { console.log('disconnected from router', _err); return;}
+          console.log('connected to router');
+        });
+      }
+
       linkRefs.registry = mesh.link(config.registry_id);
+      if (linkRefs.registry) {
+        linkRefs.registry.status((_err) => {
+          if (_err) { console.log('disconnected from registry', _err); return;}
+          console.log('connected to registry');
+        });
+      }
       config.authorized_ids.forEach((v) => {
-        linkRefs[v.hashname] = this.link(v);
+        linkRefs[v.hashname] = mesh.link(v);
+        linkRefs[v.hashname].status((_err) => {
+          if (_err) { console.log('disconnected from thing', _err); return;}
+          console.log('connected to thing');
+        });
       });
+      //
+      // mesh.accept = (from) => {
+      //   console.log('New Connection...');
+      //   const hash = hn.fromKeys(from.keys);
+      //   if (hash === config.registry_id.hashname) {
+      //     console.log(`accepting registry: ${hash}`);
+      //     mesh.link(from);
+      //   } else
+      //   if (hash === config.router_id.hashname) {
+      //     console.log(`accepting router: ${hash}`);
+      //     mesh.link(from);
+      //   } else {
+      //     console.log(`accepting normal: ${hash}`);
+      //     mesh.link(from);
+      //   }
+      // };
 
       mesh.stream((link, args, cbAccept) => {
-        console.log('LINE 68: ');
         if (link.hashname === config.registry_id.hashname) {
           // this is the trusted registry
           emitter.emit('registryStream', {
             link: link.hashname,
-            stream: cbAccept,
+            stream: cbAccept(),
           });
         } else
         if (link.hashname === config.router_id.hashname) {
           // this is the non-trusted router
           emitter.emit('routerStream', {
             link: link.hashname,
-            stream: cbAccept,
+            stream: cbAccept(),
           });
         } else {
           emitter.emit('securedStream', {
             link: link.hashname,
-            stream: cbAccept,
+            stream: cbAccept(),
           });
         }
       });
 
+      console.log('Done building.  Calling back');
       callback(false, {
         saveAsJSON: (_path) => {
           fs.writeFile(_path, JSON.stringify(config));
@@ -130,6 +164,7 @@ function telehashMesh(_config, callback) {
           });
         },
       });
+      return;
     });
   };
   // This constructs everything...

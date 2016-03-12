@@ -9,6 +9,7 @@ const myIdentity = require('./REGISTRY.json');
 const streamActor = (r_stream) => {
   r_stream.on('readable', (_data) => { console.log(`READABLE From counterparty: ${_data}`); });
   r_stream.on('data', (_data) => { console.log(`DATA From counterparty: ${_data}`); });
+  r_stream.write("HELLO GATEWAY.  THIS IS SERVER DOG.");
 //  setInterval(
 //    () => {
 //      r_stream.write('SERVER ---> ROUTER');
@@ -26,15 +27,14 @@ const cbFunction = (err, thLib) => {
 
     thLib.events.on('routerStream', (obj) => {
       console.log('Got a routerStream callback.');
-      streamActor(obj.stream());
+      streamActor(obj.stream);
     });
 
-    thLib.links.router.stream();
+    const a = thLib.links.router.stream();
+    a.write('SERVER TO GATEWAY, COME IN.');
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
 };
 
-const testMesh = neuMesh.initEndpoint({ endpoint_id: myIdentity }, cbFunction);
-
-console.log(inspect(testMesh, true, 8));
+neuMesh.initEndpoint({ endpoint_id: myIdentity }, cbFunction);
