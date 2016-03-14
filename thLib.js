@@ -147,7 +147,7 @@ function telehashMesh(_config, callback) {
         },
         links: linkRefs,
         events: emitter,
-        toString: function () inspect(config, true, 6),
+        toString: function () { inspect(config, true, 6); },
         pingAll: function () {
           Object.keys(linkRefs).forEach(function (key) {
             if (linkRefs[key].hasOwnProperty('ping')) {
