@@ -7,8 +7,5 @@ module.exports = {
     "rules": {
       "no-console": "off",
       "strict": "off",
-      "prefer-arrow-callback": "off",
-      "func-names": "off",
-      "object-shorthand": "off"
     }
 };

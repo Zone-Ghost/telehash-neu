@@ -6,6 +6,9 @@ const inspect = require('util').inspect;
 const EventEmitter = require('events');
 const hn = require('hashname');
 
+th.log({ debug: console.log });
+
+
 class Emitter extends EventEmitter {}
 
 const defReg = {
@@ -51,8 +54,8 @@ function telehashMesh(_config, callback) {
   const emitter = new Emitter();
   let timer = null;
 
-  const build = function () {
-    th.mesh({ id: config.endpoint_id }, function (err, retMesh) {
+  const build = () => {
+    th.mesh({ id: config.endpoint_id }, (err, retMesh) => {
       if (err) {
         callback(new Error(`Couldn\'t generate mesh: ${err}`));
         return;
@@ -61,7 +64,7 @@ function telehashMesh(_config, callback) {
       mesh = retMesh;
       linkRefs.router = mesh.link(config.router_id);
       if (linkRefs.router) {
-        linkRefs.router.status(function (_err) {
+        linkRefs.router.on('status', (_err) => {
           if (_err) { console.log('disconnected from router', _err); return;}
           console.log('connected to router');
         });
@@ -69,52 +72,51 @@ function telehashMesh(_config, callback) {
 
       linkRefs.registry = mesh.link(config.registry_id);
       if (linkRefs.registry) {
-        linkRefs.registry.status(function (_err) {
+        linkRefs.registry.on('status', (_err) => {
           if (_err) { console.log('disconnected from registry', _err); return;}
           console.log('connected to registry');
         });
       }
-      config.authorized_ids.forEach(function (v) {
+      config.authorized_ids.forEach((v) => {
         linkRefs[v.hashname] = mesh.link(v);
-        linkRefs[v.hashname].status(function (_err) {
+        linkRefs[v.hashname].on('status', (_err) => {
           if (_err) { console.log('disconnected from thing', _err); return;}
           console.log('connected to thing');
         });
       });
-      //
-      // mesh.accept = (from) => {
-      //   console.log('New Connection...');
-      //   const hash = hn.fromKeys(from.keys);
-      //   if (hash === config.registry_id.hashname) {
-      //     console.log(`accepting registry: ${hash}`);
-      //     mesh.link(from);
-      //   } else
-      //   if (hash === config.router_id.hashname) {
-      //     console.log(`accepting router: ${hash}`);
-      //     mesh.link(from);
-      //   } else {
-      //     console.log(`accepting normal: ${hash}`);
-      //     mesh.link(from);
-      //   }
-      // };
+      mesh.accept = (from) => {
+        console.log('New Connection...');
+        const hash = hn.fromKeys(from.keys);
+        if (hash === config.registry_id.hashname) {
+          console.log(`accepting registry: ${hash}`);
+          mesh.link(from);
+        } else
+        if (hash === config.router_id.hashname) {
+          console.log(`accepting router: ${hash}`);
+          mesh.link(from);
+        } else {
+          console.log(`accepting normal: ${hash}`);
+          mesh.link(from);
+        }
+      };
 
-      mesh.stream(function (from, args, accept) {
+      mesh.stream((from, args, accept) => {
         if (from.hashname === config.registry_id.hashname) {
           // this is the trusted registry
           emitter.emit('registryStream', {
-            link: from.hashname,
+            link: from,
             stream: accept,
           });
         } else
         if (from.hashname === config.router_id.hashname) {
           // this is the non-trusted router
           emitter.emit('routerStream', {
-            link: from.hashname,
+            link: from,
             stream: accept,
           });
         } else {
           emitter.emit('securedStream', {
-            link: from.hashname,
+            link: from,
             stream: accept,
           });
         }
@@ -122,14 +124,14 @@ function telehashMesh(_config, callback) {
 
       console.log('Done building.  Calling back');
       callback(false, {
-        saveAsJSON: function (_path) {
+        saveAsJSON: (_path) => {
           fs.writeFile(_path, JSON.stringify(config));
         },
-        addLink: function (_endpoint) {
+        addLink: (_endpoint) => {
           config.authorized_ids.push(_endpoint);
           linkRefs[_endpoint.hashname] = mesh.link(_endpoint);
         },
-        discoverMode: function (bool, _timer) {
+        discoverMode: (bool, _timer) => {
           if (timer) clearTimeout(timer);
           if (bool === false) {
             config.discovery = false;
@@ -138,7 +140,7 @@ function telehashMesh(_config, callback) {
             config.discovery = true;
             mesh.discover(true);
             if (_timer) {
-              timer = setTimeout(function () {
+              timer = setTimeout(() => {
                 config.discovery = false;
                 mesh.discover(false);
               }, _timer);
@@ -147,11 +149,11 @@ function telehashMesh(_config, callback) {
         },
         links: linkRefs,
         events: emitter,
-        toString: function () { inspect(config, true, 6); },
-        pingAll: function () {
-          Object.keys(linkRefs).forEach(function (key) {
+        toString: () => { inspect(config, true, 6); },
+        pingAll: () => {
+          Object.keys(linkRefs).forEach((key) => {
             if (linkRefs[key].hasOwnProperty('ping')) {
-              linkRefs[key].ping(function (_err, lat) {
+              linkRefs[key].ping((_err, lat) => {
                 if (_err) {
                   console.log(`Ping ${key} : No Response`);
                   return;
@@ -170,7 +172,7 @@ function telehashMesh(_config, callback) {
   // This constructs everything...
   if (typeof _config === 'object') Object.assign(config, _config);
   if (config.endpoint_id === null) {
-    th.generate(function (err, endpoint) {
+    th.generate((err, endpoint) => {
       if (err) {
         callback(new Error('Couldn\'t generate endpoint'));
         return;
@@ -188,7 +190,7 @@ function telehashMesh(_config, callback) {
 module.exports = {
   initEndpoint: telehashMesh,
   // not sure this has to be here...
-  loadFile: function (_path, _callback) {
+  loadFile: (_path, _callback) => {
     if (fs.existsSync(_path) && fs.lstatSync(_path).isFile()) {
       _callback(false, JSON.parse(fs.readFileSync(_path)));
     } else {
