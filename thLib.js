@@ -42,7 +42,7 @@ const defRouter = {
 
 function telehashMesh(_config, callback) {
   const config = {
-    endpoint_id: null,
+    endpoint: null,
     authorized_ids: [],
     router_id: defRouter,
     registry_id: defReg,
@@ -61,15 +61,13 @@ function telehashMesh(_config, callback) {
         link: from,
         stream: accept,
       });
-    }
-    else if (from.hashname === config.router_id.hashname) {
+    } else if (from.hashname === config.router_id.hashname) {
       // this is the non-trusted router
       emitter.emit('routerStream', {
         link: from,
         stream: accept,
       });
-    }
-    else {
+    } else {
       emitter.emit('securedStream', {
         link: from,
         stream: accept,
@@ -78,7 +76,7 @@ function telehashMesh(_config, callback) {
   };
 
   const build = () => {
-    th.mesh({ id: config.endpoint_id }, (err, retMesh) => {
+    th.mesh(config.endpoint, (err, retMesh) => {
       if (err) {
         callback(new Error(`Couldn\'t generate mesh: ${err}`));
         return;
@@ -90,17 +88,17 @@ function telehashMesh(_config, callback) {
         linkRefs.router.on('status', (_err) => {
           if (_err) { console.log('disconnected from router', _err); return;}
           console.log('connected to router');
-          console.log(inspect(linkRefs.router.pipes, true, 6))
+          console.log(inspect(linkRefs.router.pipes, true, 6));
         });
       }
 
-      //linkRefs.registry = mesh.link(config.registry_id);
-      linkRefs.registry = mesh.link("link://10.33.136.81:55533?cs1a=akhb6r3agdzxq35jxp2s2bp4ll6j46jjcu&cs3a=yn33zmwe6qw4hzi56evjfitjr6wslkttjozcziu3g66rpdgdwvxq&cs2a=gcbacirqbudaskugjcdpodibaeaqkaadqiaq6abqqiaquaucaeaqbingh2rf7xnrgffxlfpfal2n3dfe2mfvucl7gyche7bczrxvox4cwg7wepdrdu66ceypnkpchimsgi5r555dwnge3xvcl7753loidkus64ospm2lph35okxudbtwxqwzgolrldbbxsdu44nzr3m5amjtaufhkdsanokjdlrbw35ozafhxrtts2o6pw56f6jk3hyjvkktsla6vijwo42bzznbddnk7iwzqxfl76anbc7fmnq5fdl3rsqgb5m2nwv66lbsgenuvp3sdf6jth3jgfnmjtlef4ykpd4la3oyx2zfowwoie2u4iefhqdjv7okmg62kz22yoo35ffwjmfenkcmdfvjrt6aannr4ll2bw4yjarlktrx77bzarftnwl3fkmyqq3kc425bd6n7z2cqouyz7ycamaqaai");
+      // linkRefs.registry = mesh.link(config.registry_id);
+      linkRefs.registry = mesh.link('link://10.33.136.81:55533?cs1a=akhb6r3agdzxq35jxp2s2bp4ll6j46jjcu&cs3a=yn33zmwe6qw4hzi56evjfitjr6wslkttjozcziu3g66rpdgdwvxq&cs2a=gcbacirqbudaskugjcdpodibaeaqkaadqiaq6abqqiaquaucaeaqbingh2rf7xnrgffxlfpfal2n3dfe2mfvucl7gyche7bczrxvox4cwg7wepdrdu66ceypnkpchimsgi5r555dwnge3xvcl7753loidkus64ospm2lph35okxudbtwxqwzgolrldbbxsdu44nzr3m5amjtaufhkdsanokjdlrbw35ozafhxrtts2o6pw56f6jk3hyjvkktsla6vijwo42bzznbddnk7iwzqxfl76anbc7fmnq5fdl3rsqgb5m2nwv66lbsgenuvp3sdf6jth3jgfnmjtlef4ykpd4la3oyx2zfowwoie2u4iefhqdjv7okmg62kz22yoo35ffwjmfenkcmdfvjrt6aannr4ll2bw4yjarlktrx77bzarftnwl3fkmyqq3kc425bd6n7z2cqouyz7ycamaqaai');
       if (linkRefs.registry) {
         linkRefs.registry.on('status', (_err) => {
           if (_err) { console.log('disconnected from registry', _err); return;}
           console.log('connected to registry');
-          console.log(inspect(linkRefs.registry.pipes, true, 6))
+          console.log(inspect(linkRefs.registry.pipes, true, 6));
         });
       }
       config.authorized_ids.forEach((v) => {
@@ -108,11 +106,11 @@ function telehashMesh(_config, callback) {
         linkRefs[v.hashname].on('status', (_err) => {
           if (_err) { console.log('disconnected from thing', _err); return;}
           console.log('connected to thing');
-          console.log(inspect(linkRefs[v.hashname].pipes, true, 6))
+          console.log(inspect(linkRefs[v.hashname].pipes, true, 6));
         });
       });
       mesh.accept = (from) => {
-        console.log("getting something.")
+        console.log('getting something.');
         console.log('New Connection...');
         const hash = hn.fromKeys(from.keys);
         if (hash === config.registry_id.hashname) {
@@ -131,7 +129,7 @@ function telehashMesh(_config, callback) {
       mesh.stream(linkStatusAccepter);
 
       console.log('Done building.  Calling back');
-      console.log("Current URI: " + mesh.uri())
+      console.log(`Current URI: ${mesh.uri()}`);
       callback(false, {
         saveAsJSON: (_path) => {
           fs.writeFile(_path, JSON.stringify(config));
@@ -190,13 +188,13 @@ function telehashMesh(_config, callback) {
 
   // This constructs everything...
   if (typeof _config === 'object') Object.assign(config, _config);
-  if (config.endpoint_id === null) {
+  if (config.endpoint === null) {
     th.generate((err, endpoint) => {
       if (err) {
         callback(new Error('Couldn\'t generate endpoint'));
         return;
       }
-      config.endpoint_id = endpoint;
+      config.endpoint.id = { id: endpoint };
       build();
       return;
     });

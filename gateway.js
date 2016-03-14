@@ -38,4 +38,4 @@ const cbFunction = (err, thLib) => {
   }
 };
 
-neuMesh.initEndpoint({ endpoint_id: myIdentity }, cbFunction);
+neuMesh.initEndpoint({ endpoint: myIdentity }, cbFunction);

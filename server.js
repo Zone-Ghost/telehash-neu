@@ -49,12 +49,9 @@ const cbFunction = (err, thLib) => {
     thLib.links.router.on('status', () => {
       streamActor(thLib.links.router.stream);
     });
-    setTimeout(() => {
-      console.log(thLib.paths())
-    }, 2000);
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
 };
 
-neuMesh.initEndpoint({ endpoint_id: myIdentity }, cbFunction);
+neuMesh.initEndpoint({ endpoint: myIdentity }, cbFunction);
