@@ -31,6 +31,8 @@ const cbFunction = (err, thLib) => {
       console.log('Got a registryStream callback.');
       streamActor(obj.stream);
     });
+
+    thLib.connectToRegistry();
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
