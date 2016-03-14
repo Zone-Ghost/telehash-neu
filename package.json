@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deb-server": "DEBUG=Link,Mesh node server.js",
-    "deb-router": "DEBUG=Link,Mesh node gateway.js"
+    "deb-server": "DEBUG=Handshake,Mesh,Link node server.js",
+    "deb-router": "DEBUG=Handshake,Mesh,Link node gateway.js"
   },
   "repository": {
     "type": "git",
