@@ -54,6 +54,29 @@ function telehashMesh(_config, callback) {
   const emitter = new Emitter();
   let timer = null;
 
+  const linkStatusAccepter = (from, args, accept) => {
+    if (from.hashname === config.registry_id.hashname) {
+      // this is the trusted registry
+      emitter.emit('registryStream', {
+        link: from,
+        stream: accept,
+      });
+    }
+    else if (from.hashname === config.router_id.hashname) {
+      // this is the non-trusted router
+      emitter.emit('routerStream', {
+        link: from,
+        stream: accept,
+      });
+    }
+    else {
+      emitter.emit('securedStream', {
+        link: from,
+        stream: accept,
+      });
+    }
+  };
+
   const build = () => {
     th.mesh({ id: config.endpoint_id }, (err, retMesh) => {
       if (err) {
@@ -100,32 +123,15 @@ function telehashMesh(_config, callback) {
         }
       };
 
-      mesh.stream((from, args, accept) => {
-        if (from.hashname === config.registry_id.hashname) {
-          // this is the trusted registry
-          emitter.emit('registryStream', {
-            link: from,
-            stream: accept,
-          });
-        } else
-        if (from.hashname === config.router_id.hashname) {
-          // this is the non-trusted router
-          emitter.emit('routerStream', {
-            link: from,
-            stream: accept,
-          });
-        } else {
-          emitter.emit('securedStream', {
-            link: from,
-            stream: accept,
-          });
-        }
-      });
+      mesh.stream(linkStatusAccepter);
 
       console.log('Done building.  Calling back');
       callback(false, {
         saveAsJSON: (_path) => {
           fs.writeFile(_path, JSON.stringify(config));
+        },
+        connectToRegistry: () => {
+          const a = linkRefs.registry.stream();
         },
         addLink: (_endpoint) => {
           config.authorized_ids.push(_endpoint);
@@ -169,6 +175,8 @@ function telehashMesh(_config, callback) {
       return;
     });
   };
+
+
   // This constructs everything...
   if (typeof _config === 'object') Object.assign(config, _config);
   if (config.endpoint_id === null) {

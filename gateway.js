@@ -25,12 +25,14 @@ const cbFunction = (err, thLib) => {
     console.log(err);
   } else if (thLib) {
     console.log('About to make this instance discoverable.');
-    thLib.discoverMode(true);
+    //thLib.discoverMode(true);
 
     thLib.events.on('registryStream', (obj) => {
       console.log('Got a registryStream callback.');
       streamActor(obj.stream);
     });
+
+    thLib.connectToRegistry();
   } else {
     console.log('No error reported, but no thLib either! Gripe. Explode.');
   }
